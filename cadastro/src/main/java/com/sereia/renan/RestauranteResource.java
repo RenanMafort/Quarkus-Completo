@@ -1,17 +1,18 @@
 package com.sereia.renan;
 
 import com.sereia.renan.cadastro.Prato;
-import dto.PratoDTO;
-import dto.PratoMapper;
-import dto.RestauranteDTO;
-import dto.RestauranteMapper;
+import dto.*;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import com.sereia.renan.cadastro.Restaurante;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.List;
@@ -39,7 +40,8 @@ public class RestauranteResource {
 
     @POST
     @Transactional
-    public Response adicionar(RestauranteDTO dto){
+    @APIResponse(responseCode = "400",content = @Content(schema = @Schema(allOf = ConstraintViolationResponse.class)))
+    public Response adicionar(@Valid RestauranteDTO dto){
         Restaurante restaurente = restauranteMapper.toRestaurante(dto);
         restaurente.persist();
         return Response.status(Response.Status.CREATED).build();
