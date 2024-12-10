@@ -5,22 +5,19 @@ import jakarta.validation.ConstraintViolationException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class ConstraintViolationResponse {
     private final List<ConstraintViolationImpl> violations = new ArrayList<>();
 
     private ConstraintViolationResponse(ConstraintViolationException e) {
         e.getConstraintViolations().forEach(v -> violations.add(
-                new ConstraintViolationImpl(v.getMessage(),v.getPropertyPath().toString().split("\\.")
-                        [v.getPropertyPath().toString().split("\\.").length-1]
-
-                        )
+                new ConstraintViolationImpl(getAttribute(v),v.getMessage())
         ));
     }
 
     private String getAttribute(ConstraintViolation<?> violation){
-        Stream.of(violation).forEach();
+        String[] split = violation.getPropertyPath().toString().split("\\.");
+        return split.length > 0 ? split[split.length -1] : "";
     }
 
     public static ConstraintViolationResponse of(ConstraintViolationException exception) {

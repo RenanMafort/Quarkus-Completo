@@ -1,28 +1,34 @@
 package com.sereia.renan;
 
 import com.sereia.renan.cadastro.Prato;
+import com.sereia.renan.cadastro.Restaurante;
 import dto.*;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import com.sereia.renan.cadastro.Restaurante;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.security.*;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Path("/restaurantes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "restaurante")
+@RolesAllowed("proprietario")
+@SecurityScheme(securitySchemeName = "ifood-auth", in = SecuritySchemeIn.HEADER, scheme = "ifood-auth", type = SecuritySchemeType.OAUTH2, flows =
+@OAuthFlows(password = @OAuthFlow(tokenUrl = "http://localhost:8001/realms/ifood/protocol/openid-connect/token")))
+@SecurityRequirement(name = "ifood-auth")
 public class RestauranteResource {
 
     @Inject
