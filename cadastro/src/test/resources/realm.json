@@ -1,0 +1,31 @@
+{
+  "realm": "ifood",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "proprietario",
+        "description": "Role for proprietarios"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "proprietario1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "pro@propri.com.br",
+      "firstName": "Teste",
+      "lastName": "teste123",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "proprietario-password"
+        }
+      ],
+      "realmRoles": [
+        "proprietario"
+      ]
+    }
+  ]
+}
