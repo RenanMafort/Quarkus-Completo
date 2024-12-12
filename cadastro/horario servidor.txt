@@ -1,0 +1,68 @@
+ Reiniciar o Serviço Chrony
+Depois de verificar o arquivo de configuração, reinicie o serviço:
+
+bash
+Copiar código
+sudo systemctl restart chronyd
+2. Forçar Sincronização Manual
+Forçar o Chrony a sincronizar imediatamente com os servidores:
+
+bash
+Copiar código
+sudo chronyc -a makestep
+Isso deve corrigir a diferença de horário imediatamente. Verifique novamente o status:
+
+bash
+Copiar código
+chronyc tracking
+O campo Leap status deve mudar de Not synchronised para Normal.
+
+3. Testar Conectividade com Servidores NTP
+Certifique-se de que o sistema consegue acessar os servidores NTP listados no arquivo de configuração:
+
+Teste conectividade com o primeiro servidor:
+
+bash
+Copiar código
+ping 0.centos.pool.ntp.org -c 4
+Caso o ping falhe, substitua os servidores no arquivo /etc/chrony.conf por outros servidores globais:
+
+plaintext
+Copiar código
+server 0.pool.ntp.org iburst
+server 1.pool.ntp.org iburst
+server 2.pool.ntp.org iburst
+server 3.pool.ntp.org iburst
+Reinicie o chronyd novamente:
+
+bash
+Copiar código
+sudo systemctl restart chronyd
+Force a sincronização novamente:
+
+bash
+Copiar código
+sudo chronyc -a makestep
+4. Verificar Logs do Chrony
+Se ainda não funcionar, veja os logs do serviço para identificar possíveis erros:
+
+bash
+Copiar código
+sudo journalctl -u chronyd
+Procure por mensagens indicando problemas com os servidores NTP ou conectividade.
+
+5. Ajustar Manualmente como Alternativa
+Se a sincronização ainda falhar, ajuste o horário manualmente e aplique ao RTC (relógio de hardware):
+
+bash
+Copiar código
+sudo date -s "2024-12-11 12:00:00"
+sudo hwclock --systohc
+Isso define o horário do sistema e grava no RTC para garantir persistência.
+
+Após corrigir o horário, confirme com:
+
+bash
+Copiar código
+date
+chronyc tracking

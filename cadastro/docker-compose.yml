@@ -1,0 +1,41 @@
+version:
+  "3.7"
+services:
+  postgre_cadastro:
+    container_name: postgres_cadastro_ifood
+    image: postgres:12.2
+    environment:
+      POSTGRES_USER: cadastro
+      POSTGRES_PASSWORD: cadastro
+    ports:
+      - "5432:5432"
+  keycloak_ifood:
+    container_name: keycloak_ifood
+    image: quay.io/keycloak/keycloak:25.0.2-0
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8001:8080"
+    command:
+      - start-dev
+  jaeger_ifood:
+    container_name: jaeger_ifood
+    image: jaegertracing/all-in-one:1.6.0
+    ports:
+      - "5775:5775"
+      - "6831:6831"
+      - "6832:6832"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9411:9411"
+  prometheus_ifood:
+    container_name: prometheus_ifood
+    image: prometheus-ifood
+    network_mode: "host"
+    
+  grafana_ifood:
+    container_name: grafana_ifood
+    image: grafana/grafana:6.5.0
+    network_mode: "host"
