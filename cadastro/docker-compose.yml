@@ -9,6 +9,14 @@ services:
       POSTGRES_PASSWORD: cadastro
     ports:
       - "5432:5432"
+  postgres_marketplace:
+    container_name: postgres_marketplace_ifood
+    image: postgres:12.2
+    environment:
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+    ports:
+        - "5433:5432"
   keycloak_ifood:
     container_name: keycloak_ifood
     image: quay.io/keycloak/keycloak:25.0.2-0
@@ -39,3 +47,11 @@ services:
     container_name: grafana_ifood
     image: grafana/grafana:6.5.0
     network_mode: "host"
+
+  artemis_ifood:
+    container_name: artemis_ifood
+    image: vromero/activemq-artemis:2-alpine-latest
+    network_mode: "host"
+    environment:
+      ARTEMIS_USERNAME: admin
+      ARTEMIS_PASSWORD: admin

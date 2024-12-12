@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -17,6 +20,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.*;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.yaml.snakeyaml.emitter.Emitter;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,11 +29,14 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "restaurante")
-@RolesAllowed("proprietario")
+//@RolesAllowed("proprietario")
 @SecurityScheme(securitySchemeName = "ifood-auth", in = SecuritySchemeIn.HEADER, scheme = "ifood-auth", type = SecuritySchemeType.OAUTH2, flows =
 @OAuthFlows(password = @OAuthFlow(tokenUrl = "http://localhost:8001/realms/ifood/protocol/openid-connect/token")))
 @SecurityRequirement(name = "ifood-auth")
 public class RestauranteResource {
+
+    @Inject
+    Emitter emitter;
 
     @Inject
     RestauranteMapper restauranteMapper;
@@ -37,6 +44,9 @@ public class RestauranteResource {
     PratoMapper pratoMapper;
 
     @GET
+    @Counted(name = "Quantidade busca restaurante")
+    @SimplyTimed(name = "Tempo simples de busca")
+    @Timed(name = "Tempo completo de busca")
     public List<RestauranteDTO> listAll() {
         List<Restaurante> listAll = Restaurante.listAll();
         return listAll.stream()
