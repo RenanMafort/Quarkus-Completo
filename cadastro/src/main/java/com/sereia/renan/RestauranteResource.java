@@ -5,6 +5,8 @@ import com.sereia.renan.cadastro.Restaurante;
 import dto.*;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.json.bind.Jsonb;
+import jakarta.json.bind.JsonbBuilder;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -20,10 +22,12 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.security.*;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.yaml.snakeyaml.emitter.Emitter;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 
 @Path("/restaurantes")
 @Produces(MediaType.APPLICATION_JSON)
@@ -35,8 +39,9 @@ import java.util.Optional;
 @SecurityRequirement(name = "ifood-auth")
 public class RestauranteResource {
 
+    @Channel(value = "restaurantes")
     @Inject
-    Emitter emitter;
+    Emitter<String> emitter;
 
     @Inject
     RestauranteMapper restauranteMapper;
@@ -57,9 +62,15 @@ public class RestauranteResource {
     @POST
     @Transactional
     @APIResponse(responseCode = "400",content = @Content(schema = @Schema(allOf = ConstraintViolationResponse.class)))
-    public Response adicionar(@Valid RestauranteDTO dto){
+    public Response adicionar(@Valid RestauranteDTO dto) throws Exception {
         Restaurante restaurente = restauranteMapper.toRestaurante(dto);
         restaurente.persist();
+        try(Jsonb jsonb = JsonbBuilder.create()){
+            emitter.send(jsonb.toJson(restaurente));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         return Response.status(Response.Status.CREATED).build();
     }
 
