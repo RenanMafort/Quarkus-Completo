@@ -9,24 +9,21 @@ services:
       POSTGRES_PASSWORD: cadastro
     ports:
       - "5432:5432"
-  keycloak_ifood:
-    container_name: keycloak_ifood
-    image: quay.io/keycloak/keycloak:25.0.2-0
+  postgres_marketplace:
+    container_name: postgres_marketplace_ifood
+    image: postgres:12.2
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
     ports:
-      - "8001:8080"
-    command:
-      - start-dev
-  jaeger_ifood:
-    container_name: jaeger_ifood
-    image: jaegertracing/all-in-one:1.6.0
+      - "5433:5432"
+
+  mongodb_ifood:
+    container_name: mongodb_ifood
+    image: mongo:4.2.5-bionic
     ports:
-      - "5775:5775"
-      - "6831:6831"
-      - "6832:6832"
-      - "5778:5778"
-      - "16686:16686"
-      - "14268:14268"
-      - "9411:9411"
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pedido
+      MONGO_INITDB_ROOT_PASSWORD: pedido
+      MONGO_INITDB_DATABASE: pedido

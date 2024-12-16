@@ -1,21 +1,8 @@
-config.vm.network "forwarded_port", guest: 5432, host: 5432
-    config.vm.network "forwarded_port", guest: 8001, host: 8001
-    config.vm.network "forwarded_port", guest: 8080, host: 8011
-    config.vm.network "forwarded_port", guest: 9092, host: 9092
-    config.vm.network "forwarded_port", guest: 6379, host: 6379
-    config.vm.network "forwarded_port", guest: 9000, host: 9000
-    config.vm.network "forwarded_port", guest: 9001, host: 9001
-    config.vm.network "forwarded_port", guest: 9002, host: 9002
-    config.vm.network "forwarded_port", guest: 9003, host: 9003
-    config.vm.network "forwarded_port", guest: 9004, host: 9004
-    config.vm.network "forwarded_port", guest: 9005, host: 9005
-    config.vm.network "forwarded_port", guest: 9006, host: 9006
-    config.vm.network "forwarded_port", guest: 9007, host: 9007
-    config.vm.network "forwarded_port", guest: 9008, host: 9008 #Porta para o postgres
-    config.vm.network "forwarded_port", guest: 5775, host: 5775 #portas para o Jaeger
-    config.vm.network "forwarded_port", guest: 6831, host: 6831 #portas para o Jaeger
-    config.vm.network "forwarded_port", guest: 6832, host: 6832 #portas para o Jaeger
-    config.vm.network "forwarded_port", guest: 5778, host: 5778 #portas para o Jaeger
-    config.vm.network "forwarded_port", guest: 16686, host: 16686 #portas para o Jaeger
-    config.vm.network "forwarded_port", guest: 14268, host: 14268 #portas para o Jaeger
-    config.vm.network "forwarded_port", guest: 9411, host: 9411 #portas para o Jaeger
+Configurando kafka
+
+docker exec -it kafka_container bash
+sed -i '/^listeners=/d' /kafka/config/server.properties
+sed -i '/^advertised.listeners=/d' /kafka/config/server.properties
+echo "listeners=PLAINTEXT://0.0.0.0:9092" >> /kafka/config/server.properties
+echo "advertised.listeners=PLAINTEXT://192.168.237.167:9092" >> /kafka/config/server.properties
+docker restart kafka_container

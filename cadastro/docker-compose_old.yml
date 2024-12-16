@@ -1,0 +1,103 @@
+version:
+  "3.7"
+services:
+  postgre_cadastro:
+    container_name: postgres_cadastro_ifood
+    image: postgres:12.2
+    environment:
+      POSTGRES_USER: cadastro
+      POSTGRES_PASSWORD: cadastro
+    ports:
+      - "5432:5432"
+  postgres_marketplace:
+    container_name: postgres_marketplace_ifood
+    image: postgres:12.2
+    environment:
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+    ports:
+      - "5433:5432"
+#  keycloak_ifood:
+#    container_name: keycloak_ifood
+#    image: quay.io/keycloak/keycloak:25.0.2-0
+#    environment:
+#      KEYCLOAK_ADMIN: admin
+#      KEYCLOAK_ADMIN_PASSWORD: admin
+#    ports:
+#      - "8001:8080"
+#    command:
+#      - start-dev
+#  jaeger_ifood:
+#    container_name: jaeger_ifood
+#    image: jaegertracing/all-in-one:1.6.0
+#    ports:
+#      - "5775:5775"
+#      - "6831:6831"
+#      - "6832:6832"
+#      - "5778:5778"
+#      - "16686:16686"
+#      - "14268:14268"
+#      - "9411:9411"
+#  prometheus_ifood:
+#    container_name: prometheus_ifood
+#    image: prometheus-ifood
+#    network_mode: "host"
+#
+#  grafana_ifood:
+#    container_name: grafana_ifood
+#    image: grafana/grafana:6.5.0
+#    network_mode: "host"
+
+#  artemis_ifood:
+#    container_name: artemis_ifood
+#    image: vromero/activemq-artemis:2-alpine-latest
+#    network_mode: "host"
+#    environment:
+#      ARTEMIS_USERNAME: admin
+#      ARTEMIS_PASSWORD: admin
+  mongodb_ifood:
+    container_name: mongodb_ifood
+    image: mongo:4.2.5-bionic
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pedido
+      MONGO_INITDB_ROOT_PASSWORD: pedido
+      MONGO_INITDB_DATABASE: pedido
+
+  zookeeper:
+    container_name: zookeeper_container
+    image: debezium/zookeeper:3.0.0.Final
+    networks:
+      - kafka_network
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+
+  kafka:
+    container_name: kafka_container
+    image: bitnami/kafka:3.9.0
+    ports:
+      - "9092:9092"
+    networks:
+      - kafka_network
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+
+  kafdrop:
+    container_name: kafdrop_container
+    image: obsidiandynamics/kafdrop:4.0.1
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+    networks:
+      - kafka_network
+    ports:
+      - "9000:9000"
+    depends_on:
+      - kafka
+networks:
+  kafka_network:
+    driver: bridge
