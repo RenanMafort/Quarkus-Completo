@@ -1,11 +1,12 @@
 package com.sereia.renan;
 
+import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
 
 import java.util.List;
 
 @MongoEntity(collection = "pedidos",database = "pedido")
-public class Pedido {
+public class Pedido extends PanacheMongoEntity {
     public String cliente;
 
     public List<Prato> pratos;

@@ -4,6 +4,7 @@ import com.sereia.renan.cadastro.Prato;
 import com.sereia.renan.cadastro.Restaurante;
 import dto.*;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
@@ -12,6 +13,9 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.jwt.ClaimValue;
+import org.eclipse.microprofile.jwt.Claims;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.eclipse.microprofile.metrics.annotation.SimplyTimed;
 import org.eclipse.microprofile.metrics.annotation.Timed;
@@ -24,7 +28,7 @@ import org.eclipse.microprofile.openapi.annotations.security.*;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
-
+import org.eclipse.microprofile.jwt.Claim;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -37,6 +41,7 @@ import java.util.concurrent.CompletionStage;
 @SecurityScheme(securitySchemeName = "ifood-auth", in = SecuritySchemeIn.HEADER, scheme = "ifood-auth", type = SecuritySchemeType.OAUTH2, flows =
 @OAuthFlows(password = @OAuthFlow(tokenUrl = "http://localhost:8001/realms/ifood/protocol/openid-connect/token")))
 @SecurityRequirement(name = "ifood-auth")
+@ApplicationScoped
 public class RestauranteResource {
 
     @Channel(value = "restaurantes")
@@ -47,6 +52,13 @@ public class RestauranteResource {
     RestauranteMapper restauranteMapper;
     @Inject
     PratoMapper pratoMapper;
+
+    @Inject
+    JsonWebToken jwt;
+
+    @Inject
+    @Claim(standard = Claims.sub)
+    ClaimValue<String> sub;
 
     @GET
     @Counted(name = "Quantidade busca restaurante")
@@ -64,6 +76,7 @@ public class RestauranteResource {
     @APIResponse(responseCode = "400",content = @Content(schema = @Schema(allOf = ConstraintViolationResponse.class)))
     public Response adicionar(@Valid RestauranteDTO dto) throws Exception {
         Restaurante restaurente = restauranteMapper.toRestaurante(dto);
+        restaurente.proprietario =sub.getValue();
         restaurente.persist();
         try(Jsonb jsonb = JsonbBuilder.create()){
             emitter.send(jsonb.toJson(restaurente));
@@ -79,9 +92,13 @@ public class RestauranteResource {
     @Transactional
     public void atualizar(@PathParam("id") Long id, RestauranteDTO dto){
         Optional<Restaurante> byId = Restaurante.findByIdOptional(id);
+        if (!byId.get().proprietario.equals(sub.getValue())){
+            throw new ForbiddenException();
+        }
         if (byId.isEmpty()){
             throw new NotFoundException();
         }
+
 
         restauranteMapper.toRestaurante(dto, byId.get());
 
@@ -93,10 +110,13 @@ public class RestauranteResource {
     @Transactional
     public void delete(@PathParam("id") Long id){
         Optional<Restaurante> obj = Restaurante.findByIdOptional(id);
-
+        if (!obj.get().proprietario.equals(sub.getValue())){
+            throw new ForbiddenException();
+        }
         obj.ifPresentOrElse(Restaurante::delete, () -> {
             throw new NotFoundException();
         });
+
 
     }
 

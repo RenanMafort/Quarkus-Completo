@@ -12,9 +12,6 @@ import jakarta.validation.constraints.Size;
 @ValidDTO
 public class RestauranteDTO implements DTO {
     public Long id;
-    @NotNull
-    @NotBlank
-    public String proprietario;
     @Pattern(regexp = "[0-9]{2}\\.[0-9]{3}\\.[0-9]{3}/[0-9]{4}-[0-9]{2}", message = "Deve corresponder ao padrão de um CNPJ")
     public String cnpj;
     @Size(min = 3, max = 30,message = "O nomeFantasia deve ter entre 3 e 30 caracteres")
