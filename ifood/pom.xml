@@ -19,6 +19,8 @@
         <module>../cadastro</module>
         <module>../marketplace</module>
         <module>../pedido</module>
+        <module>../command-mode</module>
+        <module>../graphql</module>
     </modules>
 
 </project>
